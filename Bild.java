@@ -9,26 +9,10 @@ import org.opencv.imgproc.Imgproc;
 public class Bild {
     // Attribute
     public Mat bildMatrix;
-    public short [] grauwerteArray;
     // Konstruktoren
     public Bild(String dateiName) {
         bildMatrix = Imgcodecs.imread(dateiName, Imgcodecs.IMREAD_UNCHANGED);
         Imgproc.cvtColor (bildMatrix, bildMatrix, Imgproc.COLOR_BGR2GRAY);
-        if (bildMatrix.empty()) {
-            System.err.println("nicht gefunden: " + dateiName);
-            System.exit(0);
-        } else {
-            grauwerteArray = new short [bildMatrix.cols() * bildMatrix.rows()];
-            int index = 0;
-            for (int y = 0; y < bildMatrix.rows(); y++) {
-                for (int x = 0; x < bildMatrix.cols(); x++) {
-                    double[] pixelWerte = bildMatrix.get(y, x);
-                    grauwerteArray[index] = (short) pixelWerte[0];
-                    index ++;
-                }
-            }
-            System.out.println(grauwerteArray);
-        }
     }
 
 
@@ -85,22 +69,5 @@ public class Bild {
         HighGui.imshow(titel, histogramm.histogrammMatrix);
         HighGui.waitKey(zeit);
         System.exit(0);
-    }
-
-    public Mat gibAequalisierteMatrix(float[] lut, Mat bildMatrix) {
-        Mat ausgabe = new Mat(bildMatrix.rows(), bildMatrix.cols(), bildMatrix.type());
-        int [] sums = new int [lut.length];
-        sums[0] = (int) lut[0] * 255;
-        for(int i=1; i< lut.length; i++) {
-            sums[i] = (int) (sums[i-1] + lut[i] * 255);
-        }
-        for (int y = 0; y < bildMatrix.rows(); y++) {
-            for (int x = 0; x < bildMatrix.cols(); x++) {
-                short pixelValue = (short) bildMatrix.get(y, x)[0];
-                float newValue = sums[pixelValue];
-                ausgabe.put(y, x, newValue);
-            }
-        }
-        return ausgabe;
     }
 }

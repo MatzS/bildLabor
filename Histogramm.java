@@ -59,13 +59,27 @@ public class Histogramm {
     }
 
     public float[] gibNormalisierteLUT(int[] histogramm, int anzahlPixel) {
-        int test = 0;
         float[] lut = new float[256];
         for (int i = 0; i < 256; i++) {
-            lut[i] = (float) histogramm[i] / anzahlPixel;
-            test += histogramm[i];
+            lut[i] = ((float) histogramm[i]) / ((float) anzahlPixel);
         }
         return lut;
     }
 
+    public Mat gibAequalisierteMatrix(float[] lut, Mat bildMatrix) {
+        Mat ausgabe = new Mat(bildMatrix.rows(), bildMatrix.cols(), bildMatrix.type());
+        float [] sums = new float [lut.length];
+        sums[0] = lut[0] * 255;
+        for(int i=1; i< lut.length; i++) {
+            sums[i] = sums[i-1] + lut[i] * 255;
+        }
+        for (int y = 0; y < bildMatrix.rows(); y++) {
+            for (int x = 0; x < bildMatrix.cols(); x++) {
+                short pixelValue = (short) bildMatrix.get(y, x)[0];
+                float newValue = sums[pixelValue];
+                ausgabe.put(y, x, newValue);
+            }
+        }
+        return ausgabe;
+    }
 }
