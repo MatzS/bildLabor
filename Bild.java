@@ -11,8 +11,23 @@ public class Bild {
     public Mat bildMatrix;
     // Konstruktoren
     public Bild(String dateiName) {
-        bildMatrix = Imgcodecs.imread(dateiName, Imgcodecs.IMREAD_UNCHANGED);
-        Imgproc.cvtColor (bildMatrix, bildMatrix, Imgproc.COLOR_BGR2GRAY);
+        bildMatrix = Imgcodecs.imread(dateiName, Imgcodecs.IMREAD_GRAYSCALE);
+        //Imgproc.cvtColor (bildMatrix, bildMatrix, Imgproc.COLOR_BGR2GRAY);
+        /*
+        Mat convertedMatrix = new Mat(bildMatrix.rows(), bildMatrix.cols(), CvType.CV_16UC1);
+
+        // Konvertiere die Werte von 8-Bit auf 16-Bit
+        for (int i = 0; i < bildMatrix.rows(); i++) {
+            for (int j = 0; j < bildMatrix.cols(); j++) {
+                // Lese den Wert aus der Originalmatrix und skaliere ihn auf den Bereich von 16 Bit
+                double originalValue = bildMatrix.get(i, j)[0]; // Grauwerte sind normalerweise im Index 0
+                int convertedValue = (int) (originalValue); // Skaliere den Wert auf den Bereich von 16 Bit
+                convertedMatrix.put(i, j, convertedValue);
+            }
+        }
+        bildMatrix = convertedMatrix;
+        */
+
     }
 
 
@@ -28,6 +43,10 @@ public class Bild {
         Imgcodecs.imwrite(dateiName, bildMatrix);
     }
 
+    public void speichereIn(String dateiName, int qualitaet) {
+        MatOfInt map = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, qualitaet);
+        Imgcodecs.imwrite(dateiName, bildMatrix, map);
+    }
     public void show(String name) {
         HighGui.imshow(name, bildMatrix);
         HighGui.namedWindow(name, HighGui.WINDOW_AUTOSIZE);
@@ -69,5 +88,17 @@ public class Bild {
         HighGui.imshow(titel, histogramm.histogrammMatrix);
         HighGui.waitKey(zeit);
         System.exit(0);
+    }
+
+    public Bild toBinary(double thresholdValue) {
+        Mat ausgabe = new Mat(bildMatrix.rows(), bildMatrix.cols(), bildMatrix.type());
+        Imgproc.threshold(bildMatrix,ausgabe,thresholdValue,255, Imgproc.THRESH_BINARY);
+        return new Bild(ausgabe);
+    }
+
+    public Bild canny(double schwelle1, double schwelle2) {
+        Mat edges = new Mat();
+        Imgproc.Canny(bildMatrix, edges, schwelle1, schwelle2);
+        return new Bild(edges);
     }
 }
